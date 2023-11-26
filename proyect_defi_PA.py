@@ -4,11 +4,11 @@ import numpy as np
 
 # Diccionario con la información de los archivos
 archivos_excel = {
-    "Encuesta 1": {"file": "c:/Users/JOSE/Documents/proyecto_definitivo_PA/archivo_500_LIMA.xlsx", "count_column": 'P506', "df_column_name": 'EN LOS ÚLTIMOS 12 MESES, ¿CON QUÉ FRECUENCIA LEYÓ O LE LEYERON LIBROS IMPRESOS O DIGITALES'},
-    "Encuesta 2": {"file": "c:/Users/JOSE/Documents/proyecto_definitivo_PA/archivo_300_400_LIMA.xlsx", "count_column": 'P307_1', "df_column_name": '¿SABE LEER Y ESCRIBIR EN CASTELLANO?'},
-    "Encuesta 3": {"file": "c:/Users/JOSE/Documents/proyecto_definitivo_PA/archivo_500_LIMA.xlsx", "count_column": 'P501_4_1', "df_column_name": 'En el mes pasado,¿Conto un relato, cuento, historia, declamo, recito?'},
-    "Encuesta 4": {"file": "c:/Users/JOSE/Documents/proyecto_definitivo_PA/archivo_300_400_LIMA.xlsx", "count_column": 'P403', "df_column_name": '¿Con qué frecuencia usted ha leído libros, periódicos, revistas u otros contenidos impresos y/o digitales?'},
-    "Encuesta 5": {"file": "c:/Users/JOSE/Documents/proyecto_definitivo_PA/archivo_600_LIMA.xlsx", "count_column": 'P601', "df_column_name": '¿CUÁNTOS LIBROS IMPRESOS TIENE EL HOGAR?'}
+    "Encuesta 1": {"file": "archivo_500_LIMA.xlsx", "count_column": 'P506', "df_column_name": 'EN LOS ÚLTIMOS 12 MESES, ¿CON QUÉ FRECUENCIA LEYÓ O LE LEYERON LIBROS IMPRESOS O DIGITALES'},
+    "Encuesta 2": {"file": "archivo_300_400_LIMA.xlsx", "count_column": 'P307_1', "df_column_name": '¿SABE LEER Y ESCRIBIR EN CASTELLANO?'},
+    "Encuesta 3": {"file": "archivo_500_LIMA.xlsx", "count_column": 'P501_4_1', "df_column_name": 'En el mes pasado,¿Conto un relato, cuento, historia, declamo, recito?'},
+    "Encuesta 4": {"file": "archivo_300_400_LIMA.xlsx", "count_column": 'P403', "df_column_name": '¿Con qué frecuencia usted ha leído libros, periódicos, revistas u otros contenidos impresos y/o digitales?'},
+    "Encuesta 5": {"file": "archivo_600_LIMA.xlsx", "count_column": 'P601', "df_column_name": '¿CUÁNTOS LIBROS IMPRESOS TIENE EL HOGAR?'}
 }
 
 nuevos_valores = {
@@ -56,7 +56,7 @@ nombre_columna = archivos_excel[encuesta_seleccionada]["df_column_name"]
 df = pd.read_excel(archivo_seleccionado, usecols=[columna_conteo, 'NOMBREDI'])
 
 # Leer el archivo de Excel con las coordenadas de los distritos
-df_coordenadas = pd.read_excel("c:/Users/JOSE/Documents/proyecto_definitivo_PA/localizador_actualizado.xlsx", usecols=['NOMBDIST', 'Geo_Point'])
+df_coordenadas = pd.read_excel("localizador_actualizado.xlsx", usecols=['NOMBDIST', 'Geo_Point'])
 
 # Dividir la columna 'Geo_Point' en dos columnas 'Latitud' y 'Longitud'
 df_coordenadas[['Latitud', 'Longitud']] = df_coordenadas['Geo_Point'].str.split(',', expand=True)
