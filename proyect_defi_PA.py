@@ -56,20 +56,18 @@ nombre_columna = archivos_excel[encuesta_seleccionada]["df_column_name"]
 df = pd.read_excel(archivo_seleccionado, usecols=[columna_conteo, 'NOMBREDI'])
 
 # Leer el archivo de Excel con las coordenadas de los distritos
-df_coordenadas = pd.read_excel("localizador_actualizado.xlsx", usecols=['NOMBDIST', 'Geo_Point'])
+df_coordenadas = pd.read_excel("localizador_actualizado.xlsx", usecols=['NOMBDIST', 'Geo_Point'], index_col='NOMBDIST')
 
 # Dividir la columna 'Geo_Point' en dos columnas 'Latitud' y 'Longitud'
-df_coordenadas[['Latitud', 'Longitud']] = df_coordenadas['Geo_Point'].str.split(',', expand=True)
+df_coordenadas[['lat', 'lon']] = df_coordenadas['Geo_Point'].str.split(',', expand=True)
 
 # Crear un diccionario con las coordenadas de los distritos
-coordenadas_distritos = df_coordenadas.set_index('NOMBDIST')[['Latitud', 'Longitud']].T.to_dict('list')
+coordenadas_distritos = df_coordenadas[['lat', 'lon']].T.to_dict('list')
 
 # Agregar las coordenadas de latitud y longitud a tu DataFrame
-df['Latitud'] = df['NOMBREDI'].map(lambda x: float(coordenadas_distritos[x][0]) if x in coordenadas_distritos else None)
-df['Longitud'] = df['NOMBREDI'].map(lambda x: float(coordenadas_distritos[x][1]) if x in coordenadas_distritos else None)
+df['lat'] = df['NOMBREDI'].map(lambda x: float(coordenadas_distritos[x][0]) if x in coordenadas_distritos else None)
+df['lon'] = df['NOMBREDI'].map(lambda x: float(coordenadas_distritos[x][1]) if x in coordenadas_distritos else None)
 
-# Cambiar el nombre de las columnas 'Latitud' y 'Longitud' a 'lat' y 'lon'
-df.rename(columns={'Latitud': 'lat', 'Longitud': 'lon'}, inplace=True)
 
 # Contar la frecuencia de los valores en la columna especificada
 conteo = df[columna_conteo].value_counts(dropna=False)
@@ -97,9 +95,6 @@ distrito_seleccionado = st.selectbox("Selecciona un distrito", df['NOMBREDI'].un
 # Filtrar el DataFrame con los datos del distrito seleccionado
 df_distrito = df[df['NOMBREDI'] == distrito_seleccionado]
 
-
-# Filtrar el DataFrame con los datos del distrito seleccionado
-df_distrito = df[df['NOMBREDI'] == distrito_seleccionado]
 
 # Contar la frecuencia de los valores en la columna especificada para el distrito seleccionado
 conteo_distrito = df_distrito[columna_conteo].value_counts(dropna=False)
