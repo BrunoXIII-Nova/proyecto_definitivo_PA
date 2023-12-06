@@ -55,6 +55,8 @@ nombre_columna = archivos_excel[encuesta_seleccionada]["df_column_name"]
 # Leer solo la columna necesaria del archivo de Excel seleccionado
 df = pd.read_excel(archivo_seleccionado, usecols=[columna_conteo, 'NOMBREDI'])
 
+######### esto de aqui es para la localizacion para el mapa  ###########
+
 # Leer el archivo de Excel con las coordenadas de los distritos
 df_coordenadas = pd.read_excel("localizador_actualizado.xlsx", usecols=['NOMBDIST', 'Geo_Point'], index_col='NOMBDIST')
 
@@ -68,6 +70,8 @@ coordenadas_distritos = df_coordenadas[['lat', 'lon']].T.to_dict('list')
 df['lat'] = df['NOMBREDI'].map(lambda x: float(coordenadas_distritos[x][0]) if x in coordenadas_distritos else None)
 df['lon'] = df['NOMBREDI'].map(lambda x: float(coordenadas_distritos[x][1]) if x in coordenadas_distritos else None)
 
+###########  hasta aqui es para la localizacion para el mapa ###########
+
 
 # Contar la frecuencia de los valores en la columna especificada
 conteo = df[columna_conteo].value_counts(dropna=False)
@@ -76,19 +80,50 @@ if encuesta_seleccionada in nuevos_valores:
     conteo.index = conteo.index.to_series().replace(nuevos_valores[encuesta_seleccionada])
 
 # Crear un nuevo DataFrame con los resultados
-df_conteo = pd.DataFrame({
-    nombre_columna: conteo.index,
-    'cantidad total': conteo.values
-})
+df_conteo = pd.DataFrame({nombre_columna: conteo.index, 'cantidad total': conteo.values})
 
 if encuesta_seleccionada == "Encuesta 5":
+    # Ordenar el DataFrame por la columna de categoría
+    df_conteo = df_conteo.sort_values(nombre_columna).reset_index(drop=True)
+    
     df_conteo[nombre_columna] = df_conteo[nombre_columna].apply(lambda x: f"{x} libro" if x == 1 else f"{x} libros")
+
+if encuesta_seleccionada in nuevos_valores:
+    #ordena las llaves del diccionario nuevos valores
+    df_conteo[nombre_columna] = pd.Categorical(df_conteo[nombre_columna], categories=nuevos_valores[encuesta_seleccionada].values(), ordered=True)
+    # Ordenar el DataFrame por la columna de categoría
+    df_conteo = df_conteo.sort_values(nombre_columna).reset_index(drop=True)
 
 # Mostrar el DataFrame en Streamlit
 st.dataframe(df_conteo)
 
-# Mostrar un gráfico de barras en Streamlit
-st.bar_chart(df_conteo.set_index(nombre_columna))
+
+#### Para el grafico en matplotlib ####
+# Ordenar el DataFrame por la columna 'cantidad total' de mayor a menor
+df_conteo2 = df_conteo.sort_values('cantidad total', ascending=False)
+
+df_conteo2[nombre_columna] = df_conteo2[nombre_columna].astype(str)
+
+# Crear un gráfico de barras con Matplotlib
+if encuesta_seleccionada == "Encuesta 5":
+    # Crear un histograma con Matplotlib
+    plt.figure(figsize=(10, 5))
+    plt.hist(df_conteo2['cantidad total'], bins=5)
+    plt.xlabel('personas que lo poseen')
+    plt.ylabel('Cantidad de Libros')
+    plt.title(nombre_columna)
+else:
+    # Crear un gráfico de barras con Matplotlib
+    plt.figure(figsize=(10, 5))
+    plt.bar(df_conteo2[nombre_columna], df_conteo2['cantidad total'])
+    plt.xlabel(nombre_columna)
+    plt.ylabel('Cantidad total')
+    plt.title('Gráfico de barras')
+    plt.xticks(rotation=90)
+
+# Mostrar el gráfico en Streamlit
+st.pyplot(plt.gcf())
+### Aqui termina el grafico ###
 
 distrito_seleccionado = st.selectbox("Selecciona un distrito", df['NOMBREDI'].unique())
 
@@ -103,12 +138,18 @@ if encuesta_seleccionada in nuevos_valores:
     conteo_distrito.index = conteo_distrito.index.to_series().replace(nuevos_valores[encuesta_seleccionada])
 
 # Crear un nuevo DataFrame con los resultados para el distrito seleccionado
-df_conteo_distrito = pd.DataFrame({
-    nombre_columna: conteo_distrito.index,
-    'cantidad total': conteo_distrito.values
-})
+df_conteo_distrito = pd.DataFrame({nombre_columna: conteo_distrito.index,'cantidad total': conteo_distrito.values})
+
+if encuesta_seleccionada in nuevos_valores:
+    #ordena las llaves del diccionario nuevos valores
+    df_conteo_distrito[nombre_columna] = pd.Categorical(df_conteo_distrito[nombre_columna], categories=nuevos_valores[encuesta_seleccionada].values(), ordered=True)
+
+    # Ordenar el DataFrame por la columna de categoría
+    df_conteo_distrito = df_conteo_distrito.sort_values(nombre_columna).reset_index(drop=True)
 
 if encuesta_seleccionada == "Encuesta 5":
+    df_conteo_distrito = df_conteo_distrito.sort_values(nombre_columna).reset_index(drop=True)
+    
     df_conteo_distrito[nombre_columna] = df_conteo_distrito[nombre_columna].apply(lambda x: f"{x} libro" if x == 1 else f"{x} libros")
 
 # Mostrar el DataFrame de la encuesta del distrito seleccionado en Streamlit
